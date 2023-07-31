@@ -1,0 +1,77 @@
+# IRIS FLOWER CLASSIFICATION
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+iris=pd.read_csv(r'C:\Users\Hp\Downloads\iris.csv')
+
+iris.head(5)
+
+iris.drop("Id",axis=1,inplace=True)
+
+iris.info()
+
+iris.describe()
+
+iris.describe(include="object")
+
+class_counts=iris['Species'].value_counts()
+
+print(class_counts)
+
+fig,ax=plt.subplots(nrows=1,figsize=(9,4))
+labels=['SepalLengthCm','SepalWidthCm','PetalLenthCm','PetalWidthCm']
+ax.boxplot(iris.drop("Species",axis=1),labels=labels,patch_artist=True)
+ax.set_title('Box Plot')
+sns.set_theme()
+%matplotlib inline
+
+colors={'Iris-setosa':'yellow','Iris-versicolor':'red','Iris-virginica':'blue'}
+plt.scatter(iris['SepalLengthCm'],iris['SepalWidthCm'],c=iris['Species'].map(colors))
+plt.xlabel('Sepal Length (cm)')
+plt.ylabel('Sepal Width (cm)')
+plt.title('Scatter Plot of Sepal Dimensions by Class')
+plt.show()
+
+
+plt.scatter(iris['PetalLengthCm'],iris['PetalWidthCm'],c=iris['Species'].map(colors))
+plt.xlabel('Petal Length (cm)')
+plt.ylabel('Petal Width (cm)')
+plt.title('Scatter Plot of Petal Dimensions by Class')
+plt.show()
+
+from sklearn.model_selection import train_test_split,cross_val_score,KFold
+from sklearn.metrics import accuracy_score,classification_report
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+
+X=iris.drop("Species",axis=1)
+y=iris["Species"]
+print(X.shape)
+print(y.shape)
+
+def some_function_name(X,y,cv):
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+models=[("Logistic Regression",LogisticRegression()),("Decision Tree",DecisionTreeClassifier()),("Random Forest",RandomForestClassifier()),("Support Vector Machine",SVC())]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+cv = KFold(n_splits=5, shuffle=True, random_state=42)
+
+for name, model in models:
+    scores = cross_val_score(model, X_train, y_train, cv=cv)
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+
+
+    accuracy=accuracy_score(y_test, y_pred)
+    print(f"Model:{name}")
+    print("Cross-Validation Accuracy:",scores.mean())
+    print("Accuracy:",accuracy)
+    report=classification_report(y_test,y_pred)
+    print("Classification Report:\n",report)
+    print("------------------------------------------------")
